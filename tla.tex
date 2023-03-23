@@ -1,6 +1,6 @@
 \documentclass{scrbook}
 
-\usepackage{amsmath,amsfonts}
+\usepackage{amsmath,amsfonts,amssymb}
 
 \begin{document}
 
@@ -97,8 +97,8 @@ briefly cover CTL.
 
 \newcommand{\next}{X\,}
 \newcommand{\until}{\,U\,}
-\newcommand{\always}{\box}
-\newcommand{\eventually}{\diamond}
+\newcommand{\always}{\square}
+\newcommand{\eventually}{\lozenge}
 
 To give the syntax of LTL we actually just need to add two things: a formula can
 now also be $\next \phi$ (read ``next $\phi$'') or $\phi_1 \until \phi_{2}$
