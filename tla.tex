@@ -1,11 +1,139 @@
 \documentclass{scrbook}
 
+\usepackage{amsmath,amsfonts}
+
 \begin{document}
 
 \chapter{What is temporal logic?}
 
-If predicate logic is a way of describing the state of the world, temporal logic
-is a way of describing how that state evolves over time.
+If first-order logic is a way of describing state (what things are), temporal logic
+is a way of describing how state evolves over time. For example, temporal logic
+can make precise the idea that something ``eventually'' happens, or that
+something is ``always'' true; these concepts don't directly make sense in
+predicate logic.
+
+Temporal logic gives us a way to talk about a transition system, consisting of a
+description of state and a formula for valid transitions. We can use temporal
+logic to say that a sequence of states is a valid execution of the transition
+system; that is, each adjacent pair is a transition of the transition system. We
+can also use temporal logic to describe higher-level desired properties of the
+transition system, for example that a predicate holds in every state for its
+execution.
+
+\section{First-order logic}
+
+Formally, we will view temporal logic as an extension of first-order logic, so
+let's start by being a bit more formal about what FOL is. In first-order logic,
+we start with a \emph{signature}, which consists of \emph{sorts} and
+\emph{symbols}, which can be divided into functions and predicates. The
+functions and predicates can take zero or more arguments (called their arity),
+and each will have an assigned type from the signature. A signature
+might, for example, have sorts \emph{tree} and \emph{branch}, a function
+$\mathrm{treeOfBranch}(b: \mathrm{branch}) : \mathrm{tree}$, and a predicate
+$\mathrm{belongsTo}(t: \mathrm{tree}, b: \mathrm{branch})$. Note that the
+functions and predicates of first-order logic are uninterpreted; at this point,
+none of them have any meaning.
+
+Now let's talk about what a formula of first-order logic looks like. First we
+have a grammar of terms $t ::= x \mid f(t_1, \dots, t_n)$ ($x$ is a variable,
+which will be relevant when we have quantifiers). Then, a formula comes
+from the following grammar:
+\begin{align*}
+  \phi ::= \, &p(t_1, \dots, t_n) \mid t_1 = t_2 \mid \\
+  &\phi_1 \land \phi_2 \mid \phi_1 \lor \phi_2 \mid \lnot \phi \mid \\
+  &\forall (x:s). \phi \mid \exists (x:s). \phi
+\end{align*}
+
+Note that formulas can directly use predicates from the signature, or can
+express that two terms are equal. The quantifiers $\forall$ and $\exists$ are
+written with a sort for the bound variable. That variable can then be used by
+terms.
+
+Now we can finally talk about semantics, or what formulas in first-order logic
+\emph{mean}. For that, we define the notion of a \emph{first-order structure} or
+\emph{model} $M$. A model first picks some objects to exist for each sort; in
+practice it suffices to pick a cardinality and then assign the elements
+arbitrary names. Second, for each function and predicate in the signature, the
+model decides what the ``interpretation'' of that function and predicate should
+be on all of the objects of the correct sorts. Predicates in this case can be
+viewed as a special case of functions that return booleans.
+
+The semantics of a formula will be a judgment $M \models \phi$, read ``$M$
+satisfies $\phi$'' or ``$\phi$ holds in $M$''. This judgment defines what
+first-order logic means! It's also very often useful to talk about
+``satisfiable'' formulas $\phi$ where there exists an $M$ such that
+$M \models \phi$, and ``valid'' formulas $\phi$ where for all $M$,
+$M \models \phi$.
+
+Actually giving the semantics of first-order logic is a bit awkward, because
+it's actually so primitive to how we think about logic. For example,
+$M \models \phi_1 \land \phi_2$ if $M \models \phi_1$ and $M \models \phi_2$.
+Reading this out loud it seems nothing has been done, but think about it as
+interpreting the symbol $\land$ (which could mean anything, as far as what we've
+said so far is concerned) as being our intuitive understanding of ``and''.
+
+We said that we are describing ``first-order logic'', so what does that mean?
+First, there is a ``zeroth-order logic'' more commonly called ``propositional
+logic'' where there are no quantifiers, so we can't write $\forall x. \phi(x)$
+or $\exists x. \phi(x)$. It's also common to have just propositions as terms.
+First-order logic adds quantification over sorts, as we've seen above. In
+\emph{higher-order} logics, we can also quantify over formulas themselves. We
+can define \emph{second-order} logic where quantification is over first-order
+formulas or a sort, or plain old higher-order logic which allows arbitrary
+quantification.
+
+\textbf{Aside:} Why is higher-order logic useful? Describe how natural numbers
+cannot be expressed (finitely) in first-order logics, require a second-order
+principle of induction.
+
+\section{Two temporal logics: LTL and CTL}
+
+Now that we have some formal grounding for first-order logic it's much easier to
+describe temporal logic. First, I need to mention that there are actually two
+commonly used temporal logics: LTL and CTL. While these look superficially
+similar, they are actually crucially different in that they have different
+semantics. We'll actually only consider LTL (which TLA is based on) so I'll only
+briefly cover CTL.
+
+\newcommand{\next}{X\,}
+\newcommand{\until}{\,U\,}
+\newcommand{\always}{\box}
+\newcommand{\eventually}{\diamond}
+
+To give the syntax of LTL we actually just need to add two things: a formula can
+now also be $\next \phi$ (read ``next $\phi$'') or $\phi_1 \until \phi_{2}$
+(read ``$\phi_1$ until $\phi_2$''). Actually I won't use until for now but will
+add $\always \phi$ (``always $\phi$'' or ``henceforth $\phi$'') and
+$\eventually \phi$ (``eventually $\phi$'') because their semantics are easier to
+understand; we'll encode both in terms of until shortly.
+
+The semantics of LTL is given in terms of a \emph{trace} $T : \mathbb{N} \to M$
+(or $M^{\omega}$ if you want to be fancy), an infinite sequence of first-order
+models. Notice that if before we had some ``constant'' $p$ that is either
+true or false, we now actually have something that can be true or false
+independently at each time step! These are still called ``constants'' which is
+confusing.
+
+As before, for the semantics we'll define $T \models \phi$. For example,
+$T \models p$ (with $p$ a zero-argument predicate) holds if $T(0) \models_1 p$,
+where $T(0) \models_{1} p$ is meant to be the usual first-order satisfies
+relation. Notice that we just take the value of $p$ at time zero, which we can
+interpret as the ``current'' time. We didn't give $T(0) \models_{1} p$ a meaning
+but we might write $T(0)(p)$ - first we get a first-order structure, then
+evaluate $p$ in that structure. The temporal operators have the following
+meaning:
+
+Define $T^{k}$ as $\lambda n.\, T(n + k)$; that is, shift the trace $k$ steps
+(skipping forward in time).
+
+$T \models \next \phi$ if $T^{1} \models \phi$.
+
+$T \models \always \phi$ if for all $k$, $T^{k} \models \phi$.
+
+$T \models \eventually \phi$ if for there exists a $k$ such that $T^{k} \models \phi$.
+
+$T \models \phi_1 \until \phi_2$ if for there exists a $k$ such that for
+$j < k$, $T^{j} \models \phi_{1}$ and $T^{k} \models \phi_{2}$.
 
 \chapter{What is TLA?}
 
