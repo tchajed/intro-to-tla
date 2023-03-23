@@ -1,0 +1,5 @@
+.latex.out/
+*.pdf
+*.synctex.gz
+# downloaded by Makefile
+/.latexrun
