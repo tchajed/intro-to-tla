@@ -135,6 +135,37 @@ $T \models \eventually \phi$ if for there exists a $k$ such that $T^{k} \models 
 $T \models \phi_1 \until \phi_2$ if for there exists a $k$ such that for
 $j < k$, $T^{j} \models \phi_{1}$ and $T^{k} \models \phi_{2}$.
 
+\section{What about CTL?}
+
+CTL is not a logic for traces but for ``branching time''. Before we even get to
+syntax, the semantics of a CTL formula is defined in terms of a transition system
+$\mathcal{M} = (S, \to : S \to S \to \mathrm{bool}, L : S \to M)$. The idea is that $S$ is a
+set of states, $s_1 \to s_2$ is a transition system over those states, and
+$L(s)$ gives an interpretation of each state so we know whether the usual
+first-order predicates hold. Then we will say whether
+$(\mathcal, s) \models \phi$. The upshot is that a formula holds in a particular
+\emph{state} for a \emph{whole set of possible} transitions from that state, not
+just one \emph{trace of actual states} as in LTL.
+
+In CTL we define modalities by combining a ``path quantifier'' $A$ or $E$ (read
+as ``inevitably'' and ``possibly'', or ``for all paths'' and ``along at least
+one path'') with a regular LTL modality $\next$, $\always$, or $\eventually$.
+Many presentations of CTL will use $G$ for $\always$ and $F$ for $\eventually$.
+Confusingly you'll thus see something like $AG$; remember that this is a single
+modality, and you can't really separate the $A$ from the $G$. Recall that the
+semantics of any CTL formula are defined in terms of some transitions
+$\mathcal{M}$ and a current state $s$. The meaning of $A\eventually p$
+(``inevitably eventually p''), for example, is that for all infinite traces
+starting from $s$, there exists a time at which $p$ holds. Similarly
+$E \always p$ (``possibly always p'') is that there exists at least one path
+where $p$ holds along the entire path.
+
+The most important thing to remember is that the meaning of a CTL formula is
+completely different from the meaning of an LTL formula, even if they both
+involve always and eventually: a CTL formula holds of a state and regards the
+many paths from that state, while an LTL formula holds of a particular infinite
+execution trace.
+
 \chapter{What is TLA?}
 
 TLA is a restriction of LTL that is intended to prevent certain mistakes in
